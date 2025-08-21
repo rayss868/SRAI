@@ -43,7 +43,7 @@ graph TD
 
 Watch a quick demonstration of the Systematic Reasoning AI in action:
 
-<video src="https://assets.rayzs.my.id/SRAI/demo.mp4" controls width="640" height="360"></video>
+[Demo Video](https://assets.rayzs.my.id/SRAI/demo.mp4)
 
 ---
 
