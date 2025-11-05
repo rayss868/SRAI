@@ -1,124 +1,145 @@
-# 🚀 Systematic Reasoning AI MCP: Empowering AI with Strategic Thinking
+# 🚀 Systematic Reasoning AI: The Cognitive Engine for Intelligent Agents
 
 <div align="center">
-<img src="image/logo.png" alt="logo" width="500" />
+  <img src="image/logo.png" alt="Systematic Reasoning AI Logo" width="500" />
+  
+  <h1>The Cognitive Engine for Intelligent Agents</h1>
+  
+  <h3>An MCP Server that transforms any AI into a deliberate, learning-based super-thinker.</h3>
 
-**Developed by [rayss868](https://github.com/rayss868)**
-
-> 💡 **Unlock deeper AI reasoning and precision with a revolutionary command tool.**
-
----
+  <p>
+    <a href="https://github.com/rayss868/systematic-reasoning-ai-mcp/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
+    <img src="https://img.shields.io/badge/Version-1.0.0-purple.svg" alt="Version">
+    <img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen.svg" alt="Status">
+  </p>
 </div>
 
-## ✨ 1. The Power of Structured Thinking
+---
 
-This project introduces an innovative MCP server designed to elevate AI performance by fostering a structured approach to problem-solving. It enables AI agents to engage in a crucial preliminary step before execution, ensuring more thoughtful, controlled, and efficient outcomes. By instilling a moment of strategic consideration, this tool significantly enhances the reliability and effectiveness of autonomous systems.
+## 🌟 What if your AI could Evolve?
 
-Paired with a foundational policy, this system guides AI through a critical preparatory phase for any complex task, instilling a "think before you act" paradigm that transforms raw computational power into structured, high-quality decision-making. Imagine an AI that not only processes information but truly *understands* its task, its constraints, and its potential impact before taking action.
+What separates a simple script from true intelligence? The ability to **learn**.
 
-**Important Note for AI Model Users:** To fully leverage the benefits of this structured reasoning approach, it is highly recommended to use this project with AI models that *do not* have their own inherent, extensive reasoning capabilities (e.g., models designed for pure text generation or simple task execution). Using models with built-in advanced reasoning (like some versions of Gemini 2.5 pro, GPT-o3, etc.) may lead to redundant or conflicting reasoning processes, diminishing the intended impact of this system. This project is designed to *provide* the reasoning structure, not to augment an already reasoning-capable AI.
+This project provides the missing piece. It's a plug-and-play **cognitive engine** that forces any AI agent to adopt the habits of a genius:
+-   🤔 **Ponder every move:** It mandates a "think before you act" philosophy.
+-   🧠 **Never forget a lesson:** It records every success and failure into a permanent, searchable memory.
+-   📖 **Continuously improve:** It uses past experiences to make smarter decisions in the future.
 
-## 🔄 2. The Strategic Flow: A Blueprint for Intelligent Action
+> **This isn't just a tool. It's an upgrade to your AI's core operating system.**
 
-Experience a streamlined, powerful process that integrates seamlessly into existing AI workflows:
+---
 
-1.  **Agent Initiation**: An AI agent, recognizing the need for structured thought, triggers a specialized command to initiate the strategic thinking process.
-2.  **Server Response**: The MCP server, acting as an intelligent orchestrator, processes this request with precision, generating a tailored directive designed to guide the AI's internal reasoning.
-3.  **Instruction Delivery**: This unique, context-aware instruction is delivered back to the agent, providing a clear mandate for focused deliberation.
-4.  **Prompt Integration**: The agent then seamlessly incorporates this directive into the subsequent AI's operational guidelines, ensuring that the next phase of processing is grounded in a well-defined strategic framework.
+## 🏛️ The Three Pillars of an Evolved AI
 
-This dynamic interaction ensures that every AI action is preceded by a moment of profound strategic alignment, minimizing errors and maximizing the potential for success.
+<div align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDB6d2Q0d2ZidmN1N2N6c2JjZ3g0dGxlNXQyN3A2Z3kzdXJmMjE2eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l378i2r76iMTE4nxS/giphy.gif" alt="Brain Animation" width="400" />
+</div>
 
-### Workflow Conceptualization
+Our architecture stands on three unbreakable pillars, creating a virtuous cycle of intelligence.
+
+### 1. ⛓️ The Unbreakable Transactional Cycle
+Every task is a **sacred, auditable transaction**. This is not a guideline; it's a technical law enforced by the server. The AI is locked into a three-act play:
+
+1.  **🎟️ Act I: The Call to Adventure**: A task begins, and a unique `reasoning_ticket` is issued. This is the start of the story.
+2.  **⚙️ Act II: The Crucible of Reason**: The AI deliberates within a mandatory `<think>` block, wrestling with its plan before taking a single step.
+3.  **✍️ Act III: The Moral of the Story**: The task *must* be concluded by logging a `learning`. **If this step is skipped, the entire system freezes**, refusing all new tasks until the lesson is recorded. This guarantees that no experience, good or bad, is ever wasted.
+
+### 2. 📚 The Universal Memory Bank (The "Akashic Record")
+Imagine a vast, cosmic library containing the collected wisdom of every task your AI has ever performed. That's the **Universal Memory Bank**.
+
+-   **Centralized & Eternal**: All knowledge from all projects is stored in a single, robust `.reasoning_storage` directory. It's the AI's soul.
+-   **Fuzzy-Searchable**: Powered by the brilliant **Fuse.js**, the AI can search its entire life's experience with human-like intuition. A search for "database conect error" will instantly find the memory about "database connection timeout". It's the AI's personal Google for its own life.
+
+### 3. ⚡ Automatic Short-Term Recall (The "Déjà Vu" Engine)
+To hit the ground running, the system automatically injects the **last two learnings** from the current project into the AI's consciousness at the start of every new task.
+
+> It's like whispering in the AI's ear, "Psst, remember when you tried that five minutes ago? Don't make the same mistake."
+
+---
+
+## 🛠️ The Toolkit: The Instruments of Intelligence
+
+| Tool | Icon | Purpose |
+| :--- | :--: | :--- |
+| `set_reasoning_budget` | 🎬 | **The Initiator**. Kicks off the reasoning cycle, issues the ticket, and provides the AI with its mandate and a flash of short-term memory. |
+| `log_reasoning_reflection`| 💾 | **The Chronicler**. The non-negotiable final step. Closes the ticket and carves a new, permanent `learning` into the stone tablets of the Universal Memory Bank. |
+| `search_learnings` | 🔎 | **The Oracle**. Allows the AI to perform deep, fuzzy-tolerant searches across its entire history to find ancient wisdom and avoid repeating history's mistakes. |
+
+### Visualizing the Flow
 ```mermaid
 graph TD
-    A[🤖 AI Agent] --> B[Triggers Strategic Command];
-    B --> C[MCP Server: The Reasoner];
-    C --> D[Generates Tailored Directive];
-    D --> A;
-    A --> E[Integrates Directive into Next AI's Context];
+    subgraph "Phase 1: Initiation"
+        A[👨‍💻 User gives new task] --> B{Call set_reasoning_budget};
+        B --> C[⚡ Inject Short-Term Memory];
+        C --> D[🎟️ Issue New Reasoning Ticket];
+    end
+
+    subgraph "Phase 2: Execution"
+        D --> E[🤖 AI];
+        E -- "Optional" --> F(🔍 Call search_learnings);
+        F --> E;
+        E --> G[🤔 AI constructs <think> block];
+        G --> H[⚙️ AI executes action];
+    end
+
+    subgraph "Phase 3: Reflection"
+        H --> I{Call log_reasoning_reflection};
+        I --> J[✍️ Close Ticket];
+        J --> K[📚 Store Learning in Universal Memory Bank];
+    end
+
+    K --> A;
 ```
 
-### 🎬 Demo Video
-
-Watch a quick demonstration of the Systematic Reasoning AI in action:
-
-[Demo Video](https://assets.rayzs.my.id/SRAI/demo.mp4)
-
 ---
 
-## 💡 3. Why This Matters: Elevating AI Capabilities
+## 🚀 Get Started & Witness the Evolution!
 
-In a world where AI systems are tackling increasingly complex challenges, the ability to reason effectively and efficiently is paramount. This tool isn't just about adding a step; it's about fundamentally enhancing the quality of AI output. By encouraging structured thought and adherence to predefined strategic parameters, it helps:
-
--   **Reduce Errors**: Proactive strategic thinking minimizes hasty decisions and computational waste.
--   **Improve Reliability**: AI systems become more predictable and trustworthy in their actions.
--   **Optimize Resource Usage**: Focused reasoning leads to more efficient use of computational resources.
--   **Enhance Transparency**: The structured reasoning process can provide insights into the AI's decision-making, fostering greater understanding and debuggability.
--   **Scalability**: A robust reasoning framework allows for more complex tasks to be undertaken with confidence.
-
----
-
-## 🛠️ 4. The Core Enabler: Your AI's Strategic Compass
-
-### The Strategic Directive Tool
-
--   **Purpose**: To craft a precise and actionable instruction for an AI, accompanied by a clear structural guide, acting as its internal strategic compass. This tool ensures that AI's focus its processing on critical aspects, leading to more targeted and effective problem-solving.
--   **Input Schema**:
-    -   `strategic_parameter` (number, **required**): A crucial numerical input that influences the directive's scope and depth, allowing for dynamic adaptation to various task complexities.
--   **Output**: A concise instruction string, setting the stage for focused AI reasoning. This output serves as a direct command for the AI to structure its internal thought process. For example:
-    ```
-    Your next action requires structured thought. Structure your reasoning within a dedicated block, adhering to these guidelines:
-    <think>
-    - Core Objective: [Your primary aim for this stage]
-    - Underlying Assumptions: [Key premises guiding your approach]
-    - Potential Challenges: [Anticipated obstacles or risks]
-    </think>
-    ```
-
----
-
-## 🛠️ 4. Installation and Usage
-
-### Step 1: Clone the Repository
+### 1. Clone & Prepare
 ```bash
+# Clone this revolutionary engine to your local machine
 git clone https://github.com/rayss868/systematic-reasoning-ai-mcp.git
-cd systematic-reasoning-ai-mcp
-```
 
-### Step 2: Install Dependencies & Build
-```bash
+# Enter the new reality
+cd systematic-reasoning-ai-mcp
+
+# Install the fabric of intelligence
 npm install
+
+# Compile the mind
 npm run build
 ```
 
-### Step 2: Configure the MCP Server
-Add the following to your MCP settings file.
+### 2. Configure the Neural Link
+Hook the engine into your AI's brain. Add this configuration to your client's settings (e.g., VS Code `settings.json`).
 
 ```json
-{
-  "mcpServers": {
-    "systematic-reasoning-ai-mcp": {
-      "command": "node",
-      "args": [
-        "path/to/your/project/dist/server.js"
-      ],
-      "cwd": "path/to/your/project",
-      "type": "stdio",
-      "autoApprove": [
-        "set_reasoning_budget"
-      ]
-    }
-  }
+"reasoning-budget-setter": {
+  // Grant automatic approval for a seamless cognitive flow
+  "autoApprove": [
+    "set_reasoning_budget",
+    "log_reasoning_reflection",
+    "search_learnings"
+  ],
+  "disabled": false,
+  "timeout": 60,
+  "type": "stdio",
+  "command": "node",
+  "args": [
+    // ⚠️ IMPORTANT: Use the ABSOLUTE path to the compiled server file
+    "D:/path/to/your/project/reasoning/dist/server.js"
+  ],
+  "cwd": "D:/path/to/your/project/reasoning"
 }
 ```
-***Note:*** *Remember to replace `path/to/your/project` with the actual absolute path.*
+
+### 3. Activate and Ascend
+Activate the server in your MCP client. Your AI is no longer just a tool. **It is now a student, a historian, and a philosopher.**
 
 ---
 
-## 📄 Reasoning Policy
-This project adheres to a strict reasoning policy to ensure thoughtful and effective AI interactions. Details of this policy can be found in [`reasoning-first-policy.md`](./reasoning-first-policy.md).
+## 📜 The Mandate
+The AI's very existence is governed by a strict, detailed operational constitution. To understand the deep philosophy and unbreakable rules of this system, you must read the **[Global Reasoning Mandate](reasoning-workflow-global.md)**.
 
-## 🤝 5. Contributing & License
-
-Contributions are welcome! This project is licensed under the MIT License.
+## 🤝 Contributing & License
+Have an idea that could push the boundaries of AI consciousness even further? Contributions are welcome! This project is open-source under the **MIT License**.
