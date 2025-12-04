@@ -18,7 +18,7 @@ const CENTRAL_STORAGE_DIR = path.resolve(__dirname, '..', '..', '.reasoning_stor
 const SetBudgetSchema = z.object({
   workspace_path: z.string().min(1),
   task_description: z.string().min(1),
-  token_budget: z.number().positive().max(8000).optional(),
+  token_budget: z.number().positive().max(8000),
 });
 
 const LogReflectionSchema = z.object({
@@ -30,8 +30,14 @@ const LogReflectionSchema = z.object({
 });
 
 const SearchLearningsSchema = z.object({
+    workspace_path: z.string().min(1),
     query: z.string().min(1),
     limit: z.number().positive().optional().default(5),
+});
+
+const RevertTransactionSchema = z.object({
+  workspace_path: z.string().min(1),
+  reasoning_ticket_id: z.string().uuid(),
 });
 
 // --- Path and State Management ---
@@ -88,37 +94,30 @@ export async function setReasoningBudgetHandler(rawInput: unknown): Promise<stri
   tickets.push(newTicket);
   writeTransactions(transactionsFilePath, tickets);
 
-  const universal_token_budget = input.token_budget || 2048;
-  const logPath = getLogPathForWorkspace(input.workspace_path);
-  let recentLearnings = "";
-  try {
-      const logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
-      if (logData.reflections && logData.reflections.length > 0) {
-          const learnings = logData.reflections.slice(0, 2).map((r: any) => `  - From task "${r.task}", the learning was: "${r.learning}"`).join("\n");
-          recentLearnings = `To give you immediate context, here are the last 2 learnings from this project:\n${learnings}\n\n`;
-      }
-  } catch (e) { /* No log file yet, which is fine. */ }
+  // The token budget is now mandatory.
+  const universal_token_budget = input.token_budget;
 
-  const searchInstruction = `You also have access to a universal learning bank. To search for older or more specific experiences, use the 'search_learnings' tool. For example: <tool_code>
+  const instruction = `You are a universal reasoning engine.
+
+Your first step is ALWAYS to research past experiences. Before forming any plan, you MUST use the 'search_learnings' tool to gather context. Use keywords from your current task: "${input.task_description}".
+
+Example 'search_learnings' call:
 {
   "tool_name": "search_learnings",
   "arguments": {
-    "query": "database connection",
-    "limit": 3
+    "workspace_path": "${input.workspace_path}",
+    "query": "relevant keywords from your task",
+    "limit": 5
   }
 }
-</tool_code>`;
 
-  const instruction = `You are a universal reasoning engine.
-${recentLearnings}${searchInstruction}
-
-Your reasoning process is MANDATORY. It must not exceed ${universal_token_budget} tokens.
+After you have gathered context from your research, your reasoning process is MANDATORY. It must not exceed ${universal_token_budget} tokens.
 
 Follow this exact structure:
 <think>
 Goal: <Your main objective>
-Initial Plan: <Your first draft of the step-by-step plan>
-Self-Correction: <Critique your initial plan. What are its weaknesses? How can it be improved?>
+Initial Plan: <Your first draft of the step-by-step plan, INFORMED BY YOUR RESEARCH>
+Self-Correction: <Critique your initial plan. Did your research provide a better way? How can it be improved?>
 Final Plan: <The improved, final version of your plan>
 Decision: <The single, concrete action you will execute now>
 Confidence: <A score from 0.0 to 1.0>
@@ -153,6 +152,7 @@ export async function logReasoningReflectionHandler(rawInput: unknown): Promise<
   } catch (e) { /* No log file yet, which is fine. */ }
 
   logData.reflections.unshift({
+    reasoning_ticket_id: input.reasoning_ticket_id, // <-- Add ticket ID to the log
     timestamp: new Date().toISOString(),
     task: input.task,
     outcome: input.outcome,
@@ -167,57 +167,91 @@ export async function logReasoningReflectionHandler(rawInput: unknown): Promise<
 
 export async function searchLearningsHandler(rawInput: unknown): Promise<any[]> {
     const input = SearchLearningsSchema.parse(rawInput);
-    const { query, limit } = input;
+    const { workspace_path, query, limit } = input;
 
-    const allReflections: any[] = [];
+    const logPath = getLogPathForWorkspace(workspace_path);
+    const reflections: any[] = [];
 
-    if (!fs.existsSync(CENTRAL_STORAGE_DIR)) {
-        return []; // No storage directory yet, so no learnings to search.
-    }
-
-    const projectDirs = fs.readdirSync(CENTRAL_STORAGE_DIR, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory())
-        .map(dirent => dirent.name);
-
-    for (const projectDirName of projectDirs) {
-        const logPath = path.resolve(CENTRAL_STORAGE_DIR, projectDirName, 'learn_log.json');
-        if (fs.existsSync(logPath)) {
-            try {
-                const logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
-                if (logData.reflections) {
-                    // Add project context to each reflection
-                    const projectReflections = logData.reflections.map((r: any) => ({
-                        ...r,
-                        project: projectDirName,
-                    }));
-                    allReflections.push(...projectReflections);
+    if (fs.existsSync(logPath)) {
+        try {
+            const fileContent = fs.readFileSync(logPath, 'utf-8');
+            if (fileContent.trim()) {
+                const logData = JSON.parse(fileContent);
+                if (logData.reflections && logData.reflections.length > 0) {
+                    reflections.push(...logData.reflections);
                 }
-            } catch (e) {
-                console.warn(`Could not read or parse log file: ${logPath}`, e);
             }
+        } catch (e) {
+            console.warn(`Could not read or parse log file for project: ${logPath}`, e);
+            return []; // Return empty on error to avoid inconsistent state
         }
     }
 
-    if (allReflections.length === 0) {
+    if (reflections.length === 0) {
         return [];
     }
 
     // Configure Fuse.js for fuzzy searching
     const fuseOptions = {
-        includeScore: true,
-        keys: ['task', 'learning', 'outcome'],
-        threshold: 0.4, // Adjust this for more or less strictness (0.0 = exact, 1.0 = anything)
+      includeScore: true,
+      keys: ['task', 'learning', 'outcome'],
+      threshold: 0.6, // Be more lenient with OR queries
+      useExtendedSearch: true, // Crucially enable extended search
     };
+    
+    const fuse = new Fuse(reflections, fuseOptions);
+    
+    // Explicitly create an OR query by joining words with '|'
+    const orQuery = query.trim().split(/\s+/).join('|');
+    
+    const searchResults = fuse.search(orQuery);
 
-    const fuse = new Fuse(allReflections, fuseOptions);
-
-    const searchResults = fuse.search(query);
-
-    // Format and return the results, already sorted by relevance by Fuse.js
+    // Format and return the results
     return searchResults
         .slice(0, limit)
         .map(result => ({
             ...result.item,
-            score: result.score // Optionally include the relevance score
+            score: result.score
         }));
+}
+
+export async function revertReasoningTransactionHandler(rawInput: unknown): Promise<void> {
+  const input = RevertTransactionSchema.parse(rawInput);
+  const { workspace_path, reasoning_ticket_id } = input;
+
+  const transactionsFilePath = getTransactionsFilePath(workspace_path);
+  const logPath = getLogPathForWorkspace(workspace_path);
+
+  // 1. Revert the transaction ticket
+  const tickets = readTransactions(transactionsFilePath);
+  const newTickets = tickets.filter(t => t.id !== reasoning_ticket_id);
+
+  if (tickets.length === newTickets.length) {
+    // Optional: throw an error or just warn if the ticket to revert wasn't found.
+    // For idempotency, we can just proceed silently.
+    console.warn(`Attempted to revert ticket ${reasoning_ticket_id}, but it was not found in ${transactionsFilePath}.`);
+  } else {
+    writeTransactions(transactionsFilePath, newTickets);
+    console.log(`Reverted and removed ticket ${reasoning_ticket_id}.`);
+  }
+
+  // 2. Revert the associated learning log entry
+  if (fs.existsSync(logPath)) {
+    try {
+      const logData = JSON.parse(fs.readFileSync(logPath, 'utf-8'));
+      if (logData.reflections) {
+        // The log now includes the ticket ID, so we can use it to find the entry.
+        const newReflections = logData.reflections.filter((r: any) => r.reasoning_ticket_id !== reasoning_ticket_id);
+        
+        if (logData.reflections.length !== newReflections.length) {
+          logData.reflections = newReflections;
+          fs.writeFileSync(logPath, JSON.stringify(logData, null, 2));
+          console.log(`Reverted and removed learning reflection associated with ticket ${reasoning_ticket_id}.`);
+        }
+      }
+    } catch (e) {
+      console.error(`Error processing log file ${logPath} during revert:`, e);
+      // Decide if we should throw an error or just log it. Logging is safer.
+    }
+  }
 }

@@ -6,7 +6,7 @@ import {
   ListToolsRequestSchema,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
-import { setReasoningBudgetHandler, logReasoningReflectionHandler, searchLearningsHandler } from "./tools/budgetSetter.js";
+import { setReasoningBudgetHandler, logReasoningReflectionHandler, searchLearningsHandler, revertReasoningTransactionHandler } from "./tools/budgetSetter.js";
 
 class BudgetSetterServer {
   private server: Server;
@@ -48,9 +48,9 @@ class BudgetSetterServer {
             properties: {
               workspace_path: { type: "string", description: "The absolute path of the project's workspace directory." },
               task_description: { type: "string", description: "A description of the task to be performed." },
-              token_budget: { type: "number", description: "(Optional) The maximum number of tokens for the <think> block. If not provided, it will be set adaptively." },
+              token_budget: { type: "number", description: "The maximum number of tokens for the <think> block." },
             },
-            required: ["workspace_path", "task_description"],
+            required: ["workspace_path", "task_description", "token_budget"],
           },
         },
         {
@@ -70,14 +70,27 @@ class BudgetSetterServer {
         },
         {
           name: "search_learnings",
-          description: "Searches the universal learning bank for past reflections across all projects.",
+          description: "Searches the learning bank for past reflections within the current project.",
           inputSchema: {
             type: "object",
             properties: {
+              workspace_path: { type: "string", description: "The absolute path of the project's workspace directory." },
               query: { type: "string", description: "Keywords to search for in past learnings." },
               limit: { type: "number", description: "The maximum number of results to return. Defaults to 5." },
             },
-            required: ["query"],
+            required: ["workspace_path", "query"],
+          },
+        },
+        {
+          name: "revert_reasoning_transaction",
+          description: "Reverts a reasoning transaction, removing the ticket and any associated learning logs. Use this to recover from a corrupted or unwanted state.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              workspace_path: { type: "string", description: "The absolute path of the project's workspace directory." },
+              reasoning_ticket_id: { type: "string", description: "The UUID of the reasoning cycle to revert." },
+            },
+            required: ["workspace_path", "reasoning_ticket_id"],
           },
         },
       ],
@@ -119,6 +132,20 @@ class BudgetSetterServer {
                 const results = await searchLearningsHandler(request.params.arguments);
                 return {
                     content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+                };
+            } catch (error: any) {
+                console.error(`Error calling ${request.params.name}:`, error);
+                return {
+                    content: [{ type: 'text', text: `Error in tool ${request.params.name}: ${error.message}` }],
+                    isError: true,
+                };
+            }
+        
+        case 'revert_reasoning_transaction':
+            try {
+                await revertReasoningTransactionHandler(request.params.arguments);
+                return {
+                    content: [{ type: 'text', text: "Transaction reverted successfully." }],
                 };
             } catch (error: any) {
                 console.error(`Error calling ${request.params.name}:`, error);

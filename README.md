@@ -50,8 +50,8 @@ Imagine a vast, cosmic library containing the collected wisdom of every task you
 -   **Centralized & Eternal**: All knowledge from all projects is stored in a single, robust `.reasoning_storage` directory. It's the AI's soul.
 -   **Fuzzy-Searchable**: Powered by the brilliant **Fuse.js**, the AI can search its entire life's experience with human-like intuition. A search for "database conect error" will instantly find the memory about "database connection timeout". It's the AI's personal Google for its own life.
 
-### 3. ⚡ Automatic Short-Term Recall (The "Déjà Vu" Engine)
-To hit the ground running, the system automatically injects the **last two learnings** from the current project into the AI's consciousness at the start of every new task.
+### 3. 🕵️ The Mandate of Initial Research
+This engine enforces a strict "research first" protocol. The AI is not permitted to begin planning until it has first queried the Universal Memory Bank using the `search_learnings` tool. This ensures that every new action is informed by the totality of past experiences, preventing repeated mistakes and promoting intelligent evolution.
 
 > It's like whispering in the AI's ear, "Psst, remember when you tried that five minutes ago? Don't make the same mistake."
 
@@ -61,7 +61,7 @@ To hit the ground running, the system automatically injects the **last two learn
 
 | Tool | Icon | Purpose |
 | :--- | :--: | :--- |
-| `set_reasoning_budget` | 🎬 | **The Initiator**. Kicks off the reasoning cycle, issues the ticket, and provides the AI with its mandate and a flash of short-term memory. |
+| `set_reasoning_budget` | 🎬 | **The Initiator**. Kicks off the reasoning cycle by issuing a ticket and delivering a strict mandate: **the AI's first action MUST be to use `search_learnings`**. |
 | `log_reasoning_reflection`| 💾 | **The Chronicler**. The non-negotiable final step. Closes the ticket and carves a new, permanent `learning` into the stone tablets of the Universal Memory Bank. |
 | `search_learnings` | 🔎 | **The Oracle**. Allows the AI to perform deep, fuzzy-tolerant searches across its entire history to find ancient wisdom and avoid repeating history's mistakes. |
 
@@ -70,13 +70,13 @@ To hit the ground running, the system automatically injects the **last two learn
 graph TD
     subgraph "Phase 1: Initiation"
         A[👨‍💻 User gives new task] --> B{Call set_reasoning_budget};
-        B --> C[⚡ Inject Short-Term Memory];
-        C --> D[🎟️ Issue New Reasoning Ticket];
+        B --> C[🎟️ Issue New Reasoning Ticket & Mandate];
     end
 
     subgraph "Phase 2: Execution"
-        D --> E[🤖 AI];
-        E -- "Optional" --> F(🔍 Call search_learnings);
+        C --> D{MUST Call search_learnings};
+        D --> E[🤖 AI Receives Context];
+        E --> G[🤔 AI constructs <think> block];
         F --> E;
         E --> G[🤔 AI constructs <think> block];
         G --> H[⚙️ AI executes action];
@@ -90,6 +90,19 @@ graph TD
 
     K --> A;
 ```
+
+---
+
+## 🛠️ The Tools of Cognition
+
+This server provides a suite of powerful tools to enforce and manage the reasoning lifecycle.
+
+| Tool Name                        | Arguments                                             | Description                                                                                                                                                             |
+| -------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `set_reasoning_budget`           | `string: workspace_path`, `string: task_description`, `number: token_budget`  | **(BEGIN TRANSACTION)** Initiates a new reasoning cycle. It creates a transaction ticket and issues a strict mandate for the AI to begin its work by calling `search_learnings`. |
+| `log_reasoning_reflection`       | `string: workspace_path`, `string: reasoning_ticket_id`, `...` | **(END TRANSACTION)** Completes a reasoning cycle. It closes the active ticket and logs the task's outcome and key learning into the Universal Memory Bank. **This MUST be called** for a new task to begin. |
+| `search_learnings`               | `string: workspace_path`, `string: query`, `number: limit` | Searches the learning bank **for the current project** for past reflections using intelligent fuzzy search.                                                              |
+| `revert_reasoning_transaction`   | `string: workspace_path`, `string: reasoning_ticket_id` | **(CRITICAL RECOVERY)** Atomically reverts a transaction. It removes the ticket and deletes the corresponding learning log. Use this to recover from a failed or unwanted AI action, ensuring state consistency. |
 
 ---
 
@@ -119,7 +132,8 @@ Hook the engine into your AI's brain. Add this configuration to your client's se
   "autoApprove": [
     "set_reasoning_budget",
     "log_reasoning_reflection",
-    "search_learnings"
+    "search_learnings",
+    "revert_reasoning_transaction"
   ],
   "disabled": false,
   "timeout": 60,
